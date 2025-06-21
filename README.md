@@ -4,6 +4,7 @@
 
 ## Team Members
 - Emanuel Gonzalez
+- Harshit Gupta
 
 ## Tools
 - Google Colab (for shared development)
@@ -16,7 +17,16 @@
 - `data/`: clean or mock datasets
 
 ## Setup
+Create virtual environment:
+
+```bash
+virtualenv venv
+```
+
 Install required packages:
 
 ```bash
+source venv/bin/activate
 pip install -r requirements.txt
+```
+
