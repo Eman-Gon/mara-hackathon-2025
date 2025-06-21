@@ -1,0 +1,31 @@
+import random
+
+def generate_random_preference_vector():
+    """
+    Generates a random preference vector of length 3,
+    representing weights for:
+    - Profit
+    - Compute Efficiency
+    - Capacity Usage
+
+    The vector components sum to exactly 1.
+    """
+    # Generate 3 random positive values
+    raw_values = [random.random() for _ in range(3)]
+    
+    # Normalize so sum is 1
+    total = sum(raw_values)
+    normalized_vector = tuple(v / total for v in raw_values)
+    
+    return normalized_vector
+
+# Define the action space labels for clarity
+action_space = ['Profit', 'Compute Efficiency', 'Capacity Usage']
+
+# Generate and print a random preference vector multiple times
+for i in range(5):
+    prefs = generate_random_preference_vector()
+    print(f"Random Preference Vector #{i+1}:")
+    for label, weight in zip(action_space, prefs):
+        print(f"  {label:18}: {weight:.4f}")
+    print(f"  Sum of weights          : {sum(prefs):.4f}\n")
