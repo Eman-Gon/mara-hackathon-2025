@@ -1,0 +1,101 @@
+const express = require('express');
+const axios = require('axios');
+const fs = require('fs');
+const app = express();
+const PORT = 3000;
+
+// === CONFIG ===
+const BASE_URL = 'https://mara-hackathon-api.onrender.com';
+let siteKeys = {}; // Store API keys for 5 sites
+
+// === Step 1: Create 5 sites ===
+async function createSites() {
+  const names = ['good_site', 'bad_site', 'balanced_site', 'compute_heavy_site', 'miner_heavy_site'];
+  for (let name of names) {
+    const res = await axios.post(`${BASE_URL}/sites`, { name });
+    siteKeys[name] = res.data.api_key;
+    console.log(`[✔] Created ${name} → API key: ${res.data.api_key}`);
+  }
+  fs.writeFileSync('site_keys.json', JSON.stringify(siteKeys, null, 2));
+}
+
+// === Step 2: Allocate machines for all 5 sites ===
+async function allocateMachines() {
+  const allocations = {
+    good_site: {
+      air_miners: 0,
+      hydro_miners: 2,
+      immersion_miners: 5,
+      gpu_compute: 20,
+      asic_compute: 3
+    },
+    bad_site: {
+      air_miners: 100,
+      hydro_miners: 0,
+      immersion_miners: 0,
+      gpu_compute: 0,
+      asic_compute: 0
+    },
+    balanced_site: {
+      air_miners: 5,
+      hydro_miners: 3,
+      immersion_miners: 3,
+      gpu_compute: 10,
+      asic_compute: 5
+    },
+    compute_heavy_site: {
+      air_miners: 0,
+      hydro_miners: 0,
+      immersion_miners: 0,
+      gpu_compute: 50,
+      asic_compute: 10
+    },
+    miner_heavy_site: {
+      air_miners: 0,
+      hydro_miners: 5,
+      immersion_miners: 8,
+      gpu_compute: 0,
+      asic_compute: 0
+    }
+  };
+
+  for (let name in allocations) {
+    const apiKey = siteKeys[name];
+    await axios.put(`${BASE_URL}/machines`, allocations[name], {
+      headers: { 'X-Api-Key': apiKey }
+    });
+    console.log(`[✔] Allocated machines for ${name}`);
+  }
+}
+
+// === Step 3: Fetch pricing and machine status ===
+async function fetchStatus() {
+  const prices = await axios.get(`${BASE_URL}/prices`);
+  fs.writeFileSync('price_log.json', JSON.stringify(prices.data, null, 2));
+  console.log(`[✔] Prices saved`);
+
+  for (let name in siteKeys) {
+    const status = await axios.get(`${BASE_URL}/machines`, {
+      headers: { 'X-Api-Key': siteKeys[name] }
+    });
+    fs.writeFileSync(`${name}_status.json`, JSON.stringify(status.data, null, 2));
+    console.log(`[✔] ${name} machine status saved`);
+  }
+}
+
+// === Route to trigger everything ===
+app.get('/init', async (req, res) => {
+  try {
+    await createSites();
+    await allocateMachines();
+    await fetchStatus();
+    res.send('✅ All 5 sites created, machines allocated, and statuses fetched.');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('❌ Something went wrong');
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
