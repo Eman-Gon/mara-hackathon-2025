@@ -6,6 +6,7 @@
 - Emanuel Gonzalez
 - Harshit Gupta
 - Wai Lwin Oo (Bryan)
+- Jiahua Jiang
 
 ## Tools
 - Google Colab (for shared development)
