@@ -1,5 +1,5 @@
 # MARA Hackathon 2025
-
+# MOMI Multi-Objective reinforcement learning for Mining Inference
 **Prompt**: 
 
 ## Team Members
